@@ -177,7 +177,7 @@ export const productApi = {
 
   getProduct: (id: string) => apiRequest<Product>(`/products/${id}`),
 
-  createProduct: (product: Omit<Product, '_id' | 'createdAt' | 'updatedAt' | 'formattedPrice' | 'formattedRevenue'>) =>
+  createProduct: (product: Omit<Product, '_id' | 'createdAt' | 'updatedAt' | 'formattedPrice' | 'formattedRevenue' | 'sales' | 'revenue' | 'trend'>) =>
     apiRequest<Product>('/products', {
       method: 'POST',
       body: JSON.stringify(product),
