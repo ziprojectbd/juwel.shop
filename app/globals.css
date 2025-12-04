@@ -1,0 +1,337 @@
+/* CSS Reset and Tailwind Directives */
+/* These @tailwind directives are processed by Tailwind CSS during build */
+/* stylelint-disable-next-line at-rule-no-unknown */
+@tailwind base;
+/* stylelint-disable-next-line at-rule-no-unknown */
+@tailwind components; 
+/* stylelint-disable-next-line at-rule-no-unknown */
+@tailwind utilities;
+
+/* Custom animations for admin login page */
+@keyframes blob {
+  0% {
+    transform: translate(0px, 0px) scale(1);
+  }
+  33% {
+    transform: translate(30px, -50px) scale(1.1);
+  }
+  66% {
+    transform: translate(-20px, 20px) scale(0.9);
+  }
+  100% {
+    transform: translate(0px, 0px) scale(1);
+  }
+}
+
+/* Marquee animation */
+@keyframes marquee {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+/* Glowing text animation */
+@keyframes glow {
+  0%, 100% {
+    background: linear-gradient(45deg, #3b82f6, #8b5cf6, #ec4899, #f59e0b, #10b981);
+    background-size: 200% 200%;
+    background-position: 0% 50%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    filter: drop-shadow(0 0 20px rgba(59, 130, 246, 0.5));
+  }
+  25% {
+    background-position: 50% 0%;
+    filter: drop-shadow(0 0 30px rgba(139, 92, 246, 0.6));
+  }
+  50% {
+    background-position: 100% 50%;
+    filter: drop-shadow(0 0 25px rgba(236, 72, 153, 0.5));
+  }
+  75% {
+    background-position: 50% 100%;
+    filter: drop-shadow(0 0 35px rgba(245, 158, 11, 0.6));
+  }
+}
+
+/* Glowing border animation */
+@keyframes glow-border {
+  0%, 100% {
+    background: linear-gradient(45deg, #06b6d4, #3b82f6, #8b5cf6, #ec4899);
+    background-size: 300% 300%;
+    background-position: 0% 50%;
+  }
+  25% {
+    background-position: 50% 0%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  75% {
+    background-position: 50% 100%;
+  }
+}
+
+.animate-blob {
+  animation: blob 7s infinite;
+}
+
+.animate-marquee {
+  animation: marquee 20s linear infinite;
+}
+
+.animate-glow {
+  animation: glow 3s ease-in-out infinite;
+  -webkit-text-fill-color: transparent;
+}
+
+.animate-glow-border {
+  animation: glow-border 4s ease-in-out infinite;
+}
+
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+
+.animation-delay-4000 {
+  animation-delay: 4s;
+}
+
+/* Disable text selection globally to prevent copying */
+html, body, #root {
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  background-color: #111827; /* Dark background to prevent white */
+}
+
+/* Allow selection within interactive fields and opt-in elements */
+input, textarea, select, [contenteditable="true"], .allow-copy {
+  -webkit-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}
+
+/* Mobile Responsive Fixes */
+@media (max-width: 768px) {
+  /* Ensure full width on mobile */
+  .max-w-7xl {
+    max-width: 100% !important;
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+  
+  /* Header adjustments */
+  header .flex {
+    flex-wrap: nowrap !important;
+    gap: 0.375rem !important;
+  }
+  
+  /* Navigation buttons container */
+  header .relative.flex.items-center {
+    gap: 0.375rem !important;
+    margin-left: 0.5rem !important;
+  }
+  
+  /* Ensure navigation buttons stay aligned */
+  header button {
+    flex-shrink: 0 !important;
+  }
+  
+  /* Logo and title container */
+  header .flex.items-center.space-x-2 {
+    min-width: 0 !important;
+    flex: 1 !important;
+  }
+  
+  /* Title text adjustments */
+  header h1 {
+    font-size: 0.875rem !important;
+    line-height: 1.25rem !important;
+    white-space: nowrap !important;
+  }
+  
+  /* Hero section text scaling */
+  .text-4xl.md\\:text-6xl {
+    font-size: 2rem !important;
+    line-height: 1.2 !important;
+  }
+  
+  .text-xl.md\\:text-2xl {
+    font-size: 1.125rem !important;
+  }
+  
+  /* Grid adjustments for mobile */
+  .grid-cols-1.md\\:grid-cols-2.lg\\:grid-cols-3 {
+    grid-template-columns: 1fr !important;
+  }
+  
+  .grid-cols-1.md\\:grid-cols-3 {
+    grid-template-columns: 1fr !important;
+  }
+  
+  .grid-cols-1.lg\\:grid-cols-2 {
+    grid-template-columns: 1fr !important;
+  }
+  
+  .grid-cols-1.lg\\:grid-cols-3 {
+    grid-template-columns: 1fr !important;
+  }
+  
+  /* Card padding adjustments */
+  .p-6 {
+    padding: 1rem !important;
+  }
+  
+  .p-8 {
+    padding: 1.5rem !important;
+  }
+  
+  /* Button adjustments */
+  .px-5.sm\\:px-6 {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+  
+  /* Text size adjustments */
+  .text-3xl {
+    font-size: 1.5rem !important;
+  }
+  
+  .text-2xl {
+    font-size: 1.25rem !important;
+  }
+  
+  /* Spacing adjustments */
+  .space-x-8 > * + * {
+    margin-left: 1rem !important;
+  }
+  
+  .gap-8 {
+    gap: 1rem !important;
+  }
+  
+  /* Menu dropdown positioning */
+  .absolute.right-0.top-12 {
+    right: 0 !important;
+    left: auto !important;
+    width: 85vw !important;
+    max-width: 240px !important;
+    top: 3rem !important;
+  }
+  
+  /* Form inputs full width */
+  input, textarea, select {
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  
+  /* Prevent horizontal scroll */
+  body {
+    overflow-x: hidden !important;
+  }
+  
+  /* Stats section adjustments */
+  .flex.justify-center.space-x-8 {
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 1rem !important;
+  }
+  
+  .flex.justify-center.space-x-8 > * + * {
+    margin-left: 0 !important;
+  }
+  
+  /* Category buttons scroll */
+  .overflow-x-auto {
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Ad container adjustments */
+  #container-6c08b4b884bee9b71a919c92298a25d8 {
+    max-width: 100% !important;
+    overflow: hidden !important;
+  }
+}
+
+/* Small mobile devices */
+@media (max-width: 480px) {
+  .px-4 {
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+  }
+  
+  .text-lg.md\\:text-2xl {
+    font-size: 1rem !important;
+  }
+  
+  .min-h-16 {
+    min-height: 3rem !important;
+  }
+  
+  .w-10.h-10 {
+    width: 2rem !important;
+    height: 2rem !important;
+  }
+  
+  .w-6.h-6 {
+    width: 1.25rem !important;
+    height: 1.25rem !important;
+  }
+  
+  /* Extra small mobile header adjustments */
+  header .w-full.mx-auto {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+  }
+  
+  header .min-h-14 {
+    min-height: 3rem !important;
+  }
+  
+  header h1 {
+    font-size: 0.75rem !important;
+    line-height: 1rem !important;
+  }
+  
+  header .p-1\.5 {
+    padding: 0.25rem !important;
+  }
+  
+  header .w-6.h-6 {
+    width: 1rem !important;
+    height: 1rem !important;
+  }
+  
+  header .w-5.h-5 {
+    width: 1rem !important;
+    height: 1rem !important;
+  }
+  
+  /* Navigation buttons smaller on very small screens */
+  header button {
+    padding: 0.375rem !important;
+  }
+  
+  /* Menu dropdown adjustments for small screens */
+  .absolute.right-0.top-12 {
+    width: 95vw !important;
+    max-width: 200px !important;
+    top: 2.5rem !important;
+  }
+}
+
+/* Ensure ads are responsive */
+iframe {
+  max-width: 100% !important;
+  height: auto !important;
+}
+
+/* Fix any fixed width elements */
+* {
+  max-width: 100%;
+  box-sizing: border-box;
+}
