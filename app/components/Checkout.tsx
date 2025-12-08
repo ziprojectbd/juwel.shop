@@ -15,6 +15,7 @@ export interface CheckoutProps {
   copiedAddress: boolean;
   setCopiedAddress: (value: boolean) => void;
   getTotalPrice: () => number;
+  onOrderConfirmed: () => void;
 }
 
 export default function Checkout({
@@ -28,7 +29,18 @@ export default function Checkout({
   copiedAddress,
   setCopiedAddress,
   getTotalPrice,
+  onOrderConfirmed,
 }: CheckoutProps) {
+  const hasCartItems = cart.length > 0;
+  const isCrypto = paymentMethod === "crypto";
+  const isBDMobileMethod = paymentMethod === "bkash" || paymentMethod === "nagad";
+  const isValidBDPhoneStrict = (val: string) => /^\+8801[3-9]\d{8}$/.test(val);
+  const payerFilled = isCrypto
+    ? payerNumber.trim().length >= 10
+    : isValidBDPhoneStrict(payerNumber);
+  const trxFilled = trxId.trim().length >= 6;
+  const canConfirm = hasCartItems && payerFilled && trxFilled;
+
   return (
     <section className="bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 py-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -37,7 +49,7 @@ export default function Checkout({
             Checkout
           </h2>
           <p className="text-gray-600 dark:text-gray-300">
-            Complete your purchase securely via bKash
+            Complete your purchase securely
           </p>
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -282,10 +294,34 @@ export default function Checkout({
                 <input
                   type={paymentMethod === "crypto" ? "text" : "tel"}
                   value={payerNumber}
-                  onChange={(e) => setPayerNumber(e.target.value)}
+                  onChange={(e) => {
+                    if (isBDMobileMethod) {
+                      let v = e.target.value;
+                      v = v.replace(/[^+\d]/g, "");
+                      if (v === "+") v = "+880";
+                      if (v.startsWith("880")) v = "+" + v;
+                      if (v.startsWith("01")) v = "+880" + v.slice(1);
+                      if (v.startsWith("1")) v = "+880" + v;
+                      if (!v.startsWith("+880")) {
+                        if (v === "" || v === "+") v = "+880";
+                      }
+                      if (v.length > 14) v = v.slice(0, 14);
+                      setPayerNumber(v);
+                    } else {
+                      setPayerNumber(e.target.value);
+                    }
+                  }}
                   className="w-full px-3 py-2 border rounded-lg bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white"
                 />
+                {isBDMobileMethod &&
+                  payerNumber &&
+                  !isValidBDPhoneStrict(payerNumber) && (
+                    <p className="mt-1 text-xs text-red-500">
+                      Enter a valid Bangladeshi number like +8801XXXXXXXXX.
+                    </p>
+                  )}
               </div>
+
               <div>
                 <label className="block text-sm text-gray-600 dark:text-gray-300 mb-1">
                   Transaction ID / Hash
@@ -298,7 +334,31 @@ export default function Checkout({
                 />
               </div>
             </div>
-            {/* You can add a submit button here if you later wire to backend */}
+            <div className="mt-6 space-y-3">
+              <div className="text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-900/60 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2">
+                Make sure you have sent the exact amount to the correct account
+                and pasted the correct Transaction ID / Hash. Your payment will
+                be verified manually for security.
+              </div>
+              <button
+                type="button"
+                disabled={!canConfirm}
+                onClick={() => {
+                  if (!canConfirm) return;
+                  alert(
+                    "Thank you! Your order has been submitted. We will verify the payment and contact you shortly."
+                  );
+                  onOrderConfirmed();
+                }}
+                className={`w-full mt-1 inline-flex items-center justify-center px-4 py-3 rounded-lg text-sm font-semibold shadow-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:cursor-not-allowed disabled:opacity-60 ${
+                  canConfirm
+                    ? "bg-gradient-to-r from-green-600 to-emerald-600 text-white hover:from-green-700 hover:to-emerald-700"
+                    : "bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-300"
+                }`}
+              >
+                Confirm Order Securely
+              </button>
+            </div>
           </div>
         </div>
       </div>

@@ -752,7 +752,7 @@ export default function Page() {
                   <button
                     key={category.name}
                     onClick={() => setSelectedCategory(category.name)}
-                    className={`relative px-6 sm:px-7 py-3 sm:py-3.5 rounded-full transition-all duration-300 font-semibold shadow-md overflow-hidden group flex items-center gap-2 ${
+                    className={`relative px-6 sm:px-7 py-2.5 sm:py-3.5 rounded-full transition-all duration-300 font-semibold shadow-md overflow-hidden group flex items-center gap-2 min-w-max ${
                       selectedCategory === category.name
                         ? "bg-gradient-to-r text-white shadow-lg transform scale-105"
                         : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 shadow-sm hover:shadow-lg hover:scale-105 border border-gray-200 dark:border-gray-700"
@@ -764,7 +764,10 @@ export default function Page() {
                     >
                       {category.icon}
                     </span>
-                    <span className="relative z-10">{category.name}</span>
+                    <span className="relative z-10 text-xs sm:text-sm md:text-base">
+                      {category.name}
+                    </span>
+
                     {selectedCategory === category.name && (
                       <>
                         <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
@@ -785,7 +788,13 @@ export default function Page() {
                   key={product.id}
                   product={product}
                   lastAddedProductId={lastAddedProductId}
-                  addToCart={addToCart}
+                  addToCart={(p) => {
+                    if (lastAddedProductId === p.id) {
+                      setIsCartOpen(true);
+                    } else {
+                      addToCart(p);
+                    }
+                  }}
                 />
               ))}
             </div>
@@ -1103,6 +1112,13 @@ export default function Page() {
           copiedAddress={copiedAddress}
           setCopiedAddress={setCopiedAddress}
           getTotalPrice={getTotalPrice}
+          onOrderConfirmed={() => {
+            setCart([]);
+            setPayerNumber("+8801");
+            setTrxId("");
+            setPaymentMethod("bkash");
+            setView("home");
+          }}
         />
       )}
 

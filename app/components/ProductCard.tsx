@@ -34,8 +34,8 @@ export default function ProductCard({
       <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-card hover:shadow-card-hover transition-all duration-500 overflow-hidden group hover:-translate-y-2 border border-gray-100 dark:border-gray-700">
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
 
-        <div className="absolute top-4 right-4 z-10">
-          <div className="bg-gradient-to-r from-red-500 to-pink-500 text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg animate-bounce-subtle">
+        <div className="absolute top-3 right-3 z-10">
+          <div className="bg-gradient-to-r from-red-500 to-pink-500 text-white px-2.5 py-0.5 rounded-full text-xs sm:text-sm font-bold shadow-lg animate-bounce-subtle">
             {Math.round(
               ((product.originalPrice - product.price) / product.originalPrice) *
                 100
@@ -112,7 +112,7 @@ export default function ProductCard({
               >
                 <span className="relative z-10 flex items-center justify-center gap-2">
                   <ShoppingCart className="w-4 h-4 group-hover/btn:animate-bounce-subtle" />
-                  Add to Cart
+                  {lastAddedProductId === product.id ? "View Cart" : "Add to Cart"}
                 </span>
                 <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent transform -skew-x-12 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700"></div>
               </button>
