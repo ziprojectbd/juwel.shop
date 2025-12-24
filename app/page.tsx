@@ -619,8 +619,8 @@ export default function Page() {
                   </p>
                 </div>
 
-                <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-black mb-4 sm:mb-6 leading-tight animate-gradient-x">
-                  <span className="bg-gradient-to-r from-white via-yellow-100 via-orange-200 to-pink-200 bg-clip-text text-transparent drop-shadow-2xl filter brightness-110 animate-gradient-xy">
+                <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-black mb-4 sm:mb-6 leading-tight animate-glow">
+                  <span className="bg-gradient-to-r from-lime-500 via-red-500 to-lime-500 bg-clip-text text-transparent drop-shadow-2xl filter brightness-110">
                     ✨ ZI PREMIUM SERVICES ✨
                   </span>
                 </h1>
