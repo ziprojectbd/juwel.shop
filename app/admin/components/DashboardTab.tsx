@@ -1,4 +1,5 @@
 import { DollarSign, ShoppingCart, Package, UserPlus, Eye, Edit, Trash2, MoreVertical, Users, Settings } from 'lucide-react';
+import { useState } from 'react';
 import StatsCard from './StatsCard';
 
 interface Order {
@@ -8,6 +9,7 @@ interface Order {
   amount: string;
   status: string;
   date: string;
+  createdTime: string;
 }
 
 interface Product {
@@ -21,9 +23,46 @@ interface DashboardTabProps {
   recentOrders: Order[];
   topProducts: Product[];
   getStatusColor: (status: string) => string;
+  setActiveTab: (tab: string) => void;
+  setShowProductModal: (show: boolean) => void;
+  setEditingProduct: (product: any) => void;
 }
 
-export default function DashboardTab({ recentOrders, topProducts, getStatusColor }: DashboardTabProps) {
+export default function DashboardTab({ recentOrders, topProducts, getStatusColor, setActiveTab, setShowProductModal, setEditingProduct }: DashboardTabProps) {
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  const handleViewOrder = (order: Order) => {
+    setSelectedOrder(order);
+    setShowViewModal(true);
+  };
+
+  const handleEditOrder = (order: Order) => {
+    setSelectedOrder(order);
+    setShowEditModal(true);
+  };
+
+  const handleDeleteOrder = (order: Order) => {
+    setSelectedOrder(order);
+    setShowDeleteModal(true);
+  };
+
+  const handleConfirmDelete = () => {
+    console.log('Deleting order:', selectedOrder?.id);
+    setShowDeleteModal(false);
+    setSelectedOrder(null);
+  };
+
+  const handleViewAllOrders = () => {
+    setActiveTab('orders');
+  };
+
+  const handleAddProduct = () => {
+    setEditingProduct(null);
+    setShowProductModal(true);
+  };
   const stats = [
     {
       title: 'Total Revenue',
@@ -70,7 +109,10 @@ export default function DashboardTab({ recentOrders, topProducts, getStatusColor
         <div className="lg:col-span-2 bg-white/5 backdrop-blur-lg rounded-xl border border-white/10 p-6">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-xl font-bold text-white">Recent Orders</h3>
-            <button className="text-purple-400 hover:text-purple-300 text-sm font-medium">
+            <button 
+              onClick={handleViewAllOrders}
+              className="text-purple-400 hover:text-purple-300 text-sm font-medium transition-colors"
+            >
               View All
             </button>
           </div>
@@ -100,13 +142,25 @@ export default function DashboardTab({ recentOrders, topProducts, getStatusColor
                     </td>
                     <td className="py-4 px-4">
                       <div className="flex items-center space-x-2">
-                        <button className="p-1 text-gray-400 hover:text-blue-400 transition-all">
+                        <button 
+                          onClick={() => handleViewOrder(order)}
+                          className="p-1 text-gray-400 hover:text-blue-400 transition-all hover:scale-110"
+                          title="View Order"
+                        >
                           <Eye className="w-4 h-4" />
                         </button>
-                        <button className="p-1 text-gray-400 hover:text-green-400 transition-all">
+                        <button 
+                          onClick={() => handleEditOrder(order)}
+                          className="p-1 text-gray-400 hover:text-green-400 transition-all hover:scale-110"
+                          title="Edit Order"
+                        >
                           <Edit className="w-4 h-4" />
                         </button>
-                        <button className="p-1 text-gray-400 hover:text-red-400 transition-all">
+                        <button 
+                          onClick={() => handleDeleteOrder(order)}
+                          className="p-1 text-gray-400 hover:text-red-400 transition-all hover:scale-110"
+                          title="Delete Order"
+                        >
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
@@ -146,8 +200,11 @@ export default function DashboardTab({ recentOrders, topProducts, getStatusColor
       {/* Quick Actions */}
       <div className="bg-white/5 backdrop-blur-lg rounded-xl border border-white/10 p-6">
         <h3 className="text-xl font-bold text-white mb-4">Quick Actions</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <button className="flex flex-col items-center justify-center p-6 bg-gradient-to-br from-blue-500/20 to-cyan-500/20 border border-blue-500/30 rounded-xl hover:from-blue-500/30 hover:to-cyan-500/30 transition-all">
+        <div className="grid grid-cols-2 md:grid-cols-2 gap-4">
+          <button 
+            onClick={handleAddProduct}
+            className="flex flex-col items-center justify-center p-6 bg-gradient-to-br from-blue-500/20 to-cyan-500/20 border border-blue-500/30 rounded-xl hover:from-blue-500/30 hover:to-cyan-500/30 transition-all"
+          >
             <Package className="w-8 h-8 text-blue-400 mb-2" />
             <span className="text-white font-medium">Add Product</span>
           </button>
@@ -155,16 +212,113 @@ export default function DashboardTab({ recentOrders, topProducts, getStatusColor
             <ShoppingCart className="w-8 h-8 text-green-400 mb-2" />
             <span className="text-white font-medium">New Order</span>
           </button>
-          <button className="flex flex-col items-center justify-center p-6 bg-gradient-to-br from-purple-500/20 to-pink-500/20 border border-purple-500/30 rounded-xl hover:from-purple-500/30 hover:to-pink-500/30 transition-all">
-            <Users className="w-8 h-8 text-purple-400 mb-2" />
-            <span className="text-white font-medium">Add Customer</span>
-          </button>
-          <button className="flex flex-col items-center justify-center p-6 bg-gradient-to-br from-orange-500/20 to-red-500/20 border border-orange-500/30 rounded-xl hover:from-orange-500/30 hover:to-red-500/30 transition-all">
-            <Settings className="w-8 h-8 text-orange-400 mb-2" />
-            <span className="text-white font-medium">Settings</span>
-          </button>
         </div>
       </div>
+
+      {/* View Order Modal */}
+      {showViewModal && selectedOrder && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 p-6 max-w-md w-full">
+            <h3 className="text-xl font-bold text-white mb-4">Order Details</h3>
+            <div className="space-y-3">
+              <div className="flex justify-between">
+                <span className="text-gray-400">Order ID:</span>
+                <span className="text-white font-medium">{selectedOrder.id}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-400">Customer:</span>
+                <span className="text-white">{selectedOrder.customer}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-400">Product:</span>
+                <span className="text-white">{selectedOrder.product}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-400">Amount:</span>
+                <span className="text-white font-medium">{selectedOrder.amount}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-400">Status:</span>
+                <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(selectedOrder.status)}`}>
+                  {selectedOrder.status}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-400">Created Time:</span>
+                <span className="text-white text-sm">{selectedOrder.createdTime}</span>
+              </div>
+            </div>
+            <button
+              onClick={() => setShowViewModal(false)}
+              className="mt-6 w-full py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Order Modal */}
+      {showEditModal && selectedOrder && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 p-6 max-w-md w-full">
+            <h3 className="text-xl font-bold text-white mb-4">Edit Order</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-1">Status</label>
+                <select className="w-full px-3 py-2 bg-red-500 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500">
+                  <option value="Completed" selected={selectedOrder.status === 'Completed'}>Completed</option>
+                  <option value="Pending" selected={selectedOrder.status === 'Pending'}>Pending</option>
+                  <option value="Processing" selected={selectedOrder.status === 'Processing'}>Processing</option>
+                </select>
+              </div>
+            </div>
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => setShowEditModal(false)}
+                className="flex-1 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  console.log('Updating order:', selectedOrder.id);
+                  setShowEditModal(false);
+                }}
+                className="flex-1 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
+              >
+                Update
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && selectedOrder && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 p-6 max-w-md w-full">
+            <h3 className="text-xl font-bold text-white mb-4">Delete Order</h3>
+            <p className="text-gray-300 mb-6">
+              Are you sure you want to delete order {selectedOrder.id}? This action cannot be undone.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                className="flex-1 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmDelete}
+                className="flex-1 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

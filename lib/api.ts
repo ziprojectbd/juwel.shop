@@ -42,6 +42,8 @@ export interface Product {
   category: string;
   customCategory?: string;
   price: number;
+  priceBDT?: number;
+  priceUSDT?: number;
   stock: number;
   description?: string;
   imageUrl?: string;
@@ -180,7 +182,7 @@ export const productApi = {
   createProduct: (
     product: Omit<
       Product,
-      '_id' | 'createdAt' | 'updatedAt' | 'formattedPrice' | 'formattedRevenue' | 'sales' | 'revenue' | 'trend'
+      '_id' | 'createdAt' | 'updatedAt' | 'formattedPrice' | 'formattedRevenue' | 'sales' | 'revenue' | 'trend' | 'priceBDT' | 'priceUSDT'
     >
   ) =>
     apiRequest<Product>('/products', {

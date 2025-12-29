@@ -18,6 +18,8 @@ export interface CartProps {
   setView: (
     view: "home" | "checkout" | "orders" | "order-history" | "order-details"
   ) => void;
+  isLoggedIn: boolean;
+  onSignInClick: () => void;
 }
 
 export default function Cart({
@@ -28,6 +30,8 @@ export default function Cart({
   removeFromCart,
   getTotalPrice,
   setView,
+  isLoggedIn,
+  onSignInClick,
 }: CartProps) {
   if (!isCartOpen) return null;
 
@@ -107,8 +111,15 @@ export default function Cart({
               </div>
               <button
                 onClick={() => {
-                  setIsCartOpen(false);
-                  setView("checkout");
+                  if (!isLoggedIn) {
+                    // Show sign-in prompt and redirect to sign-in
+                    alert("Please sign in to proceed to checkout");
+                    setIsCartOpen(false);
+                    onSignInClick();
+                  } else {
+                    setIsCartOpen(false);
+                    setView("checkout");
+                  }
                 }}
                 className="w-full py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg hover:from-green-700 hover:to-green-800 transition-all shadow-lg"
               >

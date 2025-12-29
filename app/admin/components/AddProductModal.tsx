@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { productApi, Product } from '../../../lib/api';
 
@@ -6,9 +6,10 @@ interface AddProductModalProps {
   showModal: boolean;
   setShowModal: (show: boolean) => void;
   onProductAdded?: (product: Product) => void;
+  editingProduct?: any;
 }
 
-export default function AddProductModal({ showModal, setShowModal, onProductAdded }: AddProductModalProps) {
+export default function AddProductModal({ showModal, setShowModal, onProductAdded, editingProduct }: AddProductModalProps) {
   const [showCustomCategory, setShowCustomCategory] = useState(false);
   const [customCategory, setCustomCategory] = useState('');
   const [loading, setLoading] = useState(false);
@@ -16,13 +17,55 @@ export default function AddProductModal({ showModal, setShowModal, onProductAdde
     name: '',
     category: '',
     customCategory: '',
-    price: '',
+    priceBDT: '',
+    priceUSDT: '',
     stock: '',
     description: '',
     imageUrl: '',
     featured: false,
     available: true,
   });
+
+  // Exchange rate: 1 USD = 110 BDT (adjust as needed)
+  const BDT_TO_USD_RATE = 110;
+
+  const convertBDTtoUSDT = (bdtAmount: string) => {
+    const bdt = parseFloat(bdtAmount);
+    if (!isNaN(bdt) && bdt > 0) {
+      return (bdt / BDT_TO_USD_RATE).toFixed(2);
+    }
+    return '';
+  };
+
+  useEffect(() => {
+    if (editingProduct) {
+      setFormData({
+        name: editingProduct.name || '',
+        category: editingProduct.category || '',
+        customCategory: editingProduct.customCategory || '',
+        priceBDT: editingProduct.priceBDT?.toString() || '',
+        priceUSDT: editingProduct.priceUSDT?.toString() || '',
+        stock: editingProduct.stock?.toString() || '',
+        description: editingProduct.description || '',
+        imageUrl: editingProduct.imageUrl || '',
+        featured: editingProduct.featured || false,
+        available: editingProduct.available !== undefined ? editingProduct.available : true,
+      });
+    } else {
+      setFormData({
+        name: '',
+        category: '',
+        customCategory: '',
+        priceBDT: '',
+        priceUSDT: '',
+        stock: '',
+        description: '',
+        imageUrl: '',
+        featured: false,
+        available: true,
+      });
+    }
+  }, [editingProduct]);
 
   const handleClose = () => {
     setShowModal(false);
@@ -32,13 +75,18 @@ export default function AddProductModal({ showModal, setShowModal, onProductAdde
       name: '',
       category: '',
       customCategory: '',
-      price: '',
+      priceBDT: '',
+      priceUSDT: '',
       stock: '',
       description: '',
       imageUrl: '',
       featured: false,
       available: true,
     });
+    // Reset editing product when closing
+    if (onProductAdded && typeof onProductAdded === 'function') {
+      onProductAdded(null as any);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -48,25 +96,41 @@ export default function AddProductModal({ showModal, setShowModal, onProductAdde
     try {
       const productData = {
         ...formData,
-        price: parseFloat(formData.price),
+        price: parseFloat(formData.priceUSDT) || 0, // Use USDT as the main price
+        priceBDT: parseFloat(formData.priceBDT) || 0,
+        priceUSDT: parseFloat(formData.priceUSDT) || 0,
         stock: parseInt(formData.stock),
         category: formData.category === 'custom' ? 'custom' : formData.category,
         customCategory: formData.category === 'custom' ? formData.customCategory : undefined,
       };
 
-      const response = await productApi.createProduct(productData);
-
-      if (response.success && response.data) {
-        alert('Product created successfully!');
-        onProductAdded?.(response.data);
-        handleClose();
+      let response;
+      if (editingProduct) {
+        // Update existing product
+        response = await productApi.updateProduct(editingProduct._id || editingProduct.id, productData);
+        if (response.success && response.data) {
+          alert('Product updated successfully!');
+          onProductAdded?.(response.data);
+          handleClose();
+        } else {
+          console.error('API Error:', response);
+          alert(`Error: ${response.error || 'Failed to update product'}`);
+        }
       } else {
-        console.error('API Error:', response);
-        alert(`Error: ${response.error || 'Failed to create product'}`);
+        // Create new product
+        response = await productApi.createProduct(productData);
+        if (response.success && response.data) {
+          alert('Product created successfully!');
+          onProductAdded?.(response.data);
+          handleClose();
+        } else {
+          console.error('API Error:', response);
+          alert(`Error: ${response.error || 'Failed to create product'}`);
+        }
       }
     } catch (error) {
-      console.error('Error creating product:', error);
-      alert(`Failed to create product: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      console.error('Error:', editingProduct ? 'updating product:' : 'creating product:', error);
+      alert(`Failed to ${editingProduct ? 'update' : 'create'} product: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setLoading(false);
     }
@@ -86,6 +150,16 @@ export default function AddProductModal({ showModal, setShowModal, onProductAdde
         ...prev,
         [name]: value
       }));
+
+      // Auto-convert BDT to USDT when BDT price is entered
+      if (name === 'priceBDT') {
+        const usdtValue = convertBDTtoUSDT(value);
+        setFormData(prev => ({
+          ...prev,
+          priceBDT: value,
+          priceUSDT: usdtValue
+        }));
+      }
     }
 
     if (name === 'category' && value === 'custom') {
@@ -101,7 +175,7 @@ export default function AddProductModal({ showModal, setShowModal, onProductAdde
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div className="bg-slate-900 rounded-2xl border border-white/20 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         <div className="sticky top-0 bg-slate-900 border-b border-white/10 p-6 flex items-center justify-between">
-          <h3 className="text-2xl font-bold text-white">Add New Product</h3>
+          <h3 className="text-2xl font-bold text-white">{editingProduct ? 'Edit Product' : 'Add New Product'}</h3>
           <button
             onClick={handleClose}
             className="text-gray-400 hover:text-white transition-all"
@@ -138,12 +212,10 @@ export default function AddProductModal({ showModal, setShowModal, onProductAdde
                       required
                     >
                       <option value="" className="bg-slate-900">Select a category</option>
-                      <option value="streaming" className="bg-slate-900">Streaming Services</option>
-                      <option value="music" className="bg-slate-900">Music Services</option>
-                      <option value="gaming" className="bg-slate-900">Gaming</option>
-                      <option value="software" className="bg-slate-900">Software</option>
-                      <option value="vpn" className="bg-slate-900">VPN Services</option>
-                      <option value="cloud" className="bg-slate-900">Cloud Storage</option>
+                      <option value="Entertainment" className="bg-slate-900">Entertainment</option>
+                      <option value="Design" className="bg-slate-900">Design</option>
+                      <option value="Security" className="bg-slate-900">Security</option>
+                      <option value="Social Services" className="bg-slate-900">Social Services</option>
                       <option value="custom" className="bg-slate-900">+ Create New Category</option>
                     </select>
                   </div>
@@ -180,11 +252,11 @@ export default function AddProductModal({ showModal, setShowModal, onProductAdde
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Price</label>
+              <label className="block text-sm font-medium text-gray-300 mb-2">Price (BDT)</label>
               <input
                 type="number"
-                name="price"
-                value={formData.price}
+                name="priceBDT"
+                value={formData.priceBDT}
                 onChange={handleInputChange}
                 step="0.01"
                 placeholder="0.00"
@@ -194,17 +266,32 @@ export default function AddProductModal({ showModal, setShowModal, onProductAdde
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Stock</label>
+              <label className="block text-sm font-medium text-gray-300 mb-2">Price (USDT)</label>
               <input
                 type="number"
-                name="stock"
-                value={formData.stock}
+                name="priceUSDT"
+                value={formData.priceUSDT}
                 onChange={handleInputChange}
-                placeholder="0"
-                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                required
+                step="0.01"
+                placeholder="Auto-calculated"
+                className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 cursor-not-allowed"
+                readOnly
               />
+              <p className="text-xs text-gray-400 mt-1">Auto-calculated from BDT (1 USD = ৳110)</p>
             </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">Stock</label>
+            <input
+              type="number"
+              name="stock"
+              value={formData.stock}
+              onChange={handleInputChange}
+              placeholder="0"
+              className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              required
+            />
           </div>
 
           <div>
@@ -269,7 +356,7 @@ export default function AddProductModal({ showModal, setShowModal, onProductAdde
               className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={loading}
             >
-              {loading ? 'Adding...' : 'Add Product'}
+              {loading ? (editingProduct ? 'Updating...' : 'Adding...') : (editingProduct ? 'Update Product' : 'Add Product')}
             </button>
           </div>
         </form>

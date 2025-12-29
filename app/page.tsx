@@ -38,6 +38,8 @@ import ProductCard from "./components/ProductCard";
 import Cart from "./components/Cart";
 import Checkout from "./components/Checkout";
 import OrderHistory from "./components/OrderHistory";
+import SignInModal from './components/SignInModal';
+import SignUpModal from './components/SignUpModal';
 import Footer from "./components/Footer";
 
 interface Product {
@@ -341,6 +343,23 @@ export default function Page() {
   const [orders] = useState<Order[]>(mockOrders);
   const [copiedAddress, setCopiedAddress] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [showSignInModal, setShowSignInModal] = useState(false);
+  const [showSignUpModal, setShowSignUpModal] = useState(false);
+
+  // Handle sign in
+  const handleSignIn = (email: string, password: string) => {
+    console.log('Sign in:', { email, password });
+    setIsLoggedIn(true);
+    // You can add actual authentication logic here
+  };
+
+  // Handle sign up
+  const handleSignUp = (userData: { name: string; email: string; phone: string; password: string }) => {
+    console.log('Sign up:', userData);
+    setIsLoggedIn(true);
+    // You can add actual registration logic here
+  };
 
   useEffect(() => {
     const root = document.documentElement;
@@ -567,7 +586,31 @@ export default function Page() {
         theme={theme}
         toggleTheme={toggleTheme}
         username={username}
+        isLoggedIn={isLoggedIn}
+        onSignInClick={() => setShowSignInModal(true)}
+        onSignUpClick={() => setShowSignUpModal(true)}
       />
+
+      {/* Maintenance Marquee */}
+      <div className="bg-red-600 text-white py-2 overflow-hidden">
+        <div className="flex animate-marquee whitespace-nowrap">
+          <span className="mx-4 font-bold text-lg">
+            ⚠️ UNDER MAINTENANCE ⚠️
+          </span>
+          <span className="mx-4 font-bold text-lg">
+            ⚠️ UNDER MAINTENANCE ⚠️
+          </span>
+          <span className="mx-4 font-bold text-lg">
+            ⚠️ UNDER MAINTENANCE ⚠️
+          </span>
+          <span className="mx-4 font-bold text-lg">
+            ⚠️ UNDER MAINTENANCE ⚠️
+          </span>
+          <span className="mx-4 font-bold text-lg">
+            ⚠️ UNDER MAINTENANCE ⚠️
+          </span>
+        </div>
+      </div>
 
       {view === "home" && (
         <>
@@ -1600,9 +1643,33 @@ export default function Page() {
         removeFromCart={removeFromCart}
         getTotalPrice={getTotalPrice}
         setView={setView}
+        isLoggedIn={isLoggedIn}
+        onSignInClick={() => setShowSignInModal(true)}
       />
 
       <Footer />
+
+      {/* Sign In Modal */}
+      <SignInModal
+        isOpen={showSignInModal}
+        onClose={() => setShowSignInModal(false)}
+        onSignIn={handleSignIn}
+        onSignUp={() => {
+          setShowSignInModal(false);
+          setShowSignUpModal(true);
+        }}
+      />
+
+      {/* Sign Up Modal */}
+      <SignUpModal
+        isOpen={showSignUpModal}
+        onClose={() => setShowSignUpModal(false)}
+        onSignUp={handleSignUp}
+        onSignIn={() => {
+          setShowSignUpModal(false);
+          setShowSignInModal(true);
+        }}
+      />
     </div>
   );
 }
